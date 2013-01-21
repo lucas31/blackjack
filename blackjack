@@ -1,0 +1,739 @@
+#!/bin/bash
+
+name=BlackJack
+#typ=FINAL
+ver=v1.00
+#build="Build F121d"
+
+#init
+game=1
+for ((i=0; i<52; i++)) do
+	deck[$i]=0
+done
+
+#scene1:hello
+clear
+echo -e "Hello!\nThis is $name $ver$typ\n$build"
+read 'Press any key to play...'
+
+#scene2:menu
+while [ $game -eq 1 ]
+do
+	clear
+	echo -e "$name $ver$typ\nPlay VS CPU		1\nPlay VS Friend		2\nExit 			3"
+	read menu
+	clear
+
+	if [ $menu -eq 3 ] 2>/dev/null; then
+		clear
+		echo -e "Thanks for using $name $ver$typ\n\nCODE: Lucas31"
+		game=0
+	
+	else
+		if [ $menu -eq 2 ] 2>/dev/null; then
+		#scene3a:vsHum
+			clear
+			hum=1				
+			echo -e "$name $ver$typ\nPlay VS Friend"
+			read empty	
+			while [ $hum -eq 1 ]
+			do
+		
+######################################## WHILE	
+			#Init
+			cash=300
+			cashc=300
+
+			clear
+			while ([ $cash -gt 0 ] && [ $cashc -gt 0 ])
+			do
+				b=0
+				inc=0
+				suma=0
+				sumac=0
+				SUMA=0
+				SUMAc=0
+				bet=0
+				stay=0
+				res=0
+				val=( 2 3 4 5 6 7 8 9 10 Jack Queen King Ace )
+				col=( Spades Clubs Diamonds Hearts )
+				wart=( 2 3 4 5 6 7 8 9 10 2 3 4 11 )
+	
+				for ((i=0; i<52; i++)) do
+					sigma[$i]=NULL
+					sigmac[$i]=NULL
+					deck[$i]=1
+				done
+
+				#betting
+				wrbet=1
+				while [ $wrbet -ge 1 ]
+				do
+					echo -e "Player1's credit is: $cash\nPlayer2's credit is: $cashc\nPlace your bet: "
+					read bet
+
+					if ([ $bet -gt 0 ] && [ $bet -le $cash ] && [ $bet -le $cashc ]);
+					then
+							wrbet=0
+					else
+						if [ $bet -eq 0 ] 2>/dev/null;
+						then
+							echo "You can't bet nothing"
+							wrbet=1
+							read empty
+						clear
+						else
+							if ([ $bet -gt $cash ] || [ $bet -gt $cashc ]) 2>/dev/null;
+							then
+								echo "The bet cannot be more than what each of you have"
+								wrbet=1
+								read empty
+								clear
+							else
+								if [ $bet -lt 0 ] 2>/dev/null;
+								then
+									echo "The bet cannot be less than 0"
+									wrbet=1
+									read empty
+									clear
+								else
+									clear
+									echo -e "Incorrect input\nTry again"
+									wrbet=1
+									read empty
+									clear
+			
+								fi
+							fi
+						fi
+					fi
+				done
+
+				clear
+				echo The bet is: $bet
+				read empty
+
+				#p1 draws
+				#Initial card
+				color=$((RANDOM%4))
+				value=$((RANDOM%13))
+				card=$(( value + (color * 13) ))
+				i=0
+				if [ $value -eq 12 ];
+				then
+					pers=$((pers+1))
+				else
+					pers=0
+				fi
+				sigma[$i]="${val[$value]} of ${col[$color]}"
+				if [ $value -eq 12 ];
+				then
+					pers=$((pers+1))
+				else
+					pers=0
+				fi
+
+				clear
+
+				#the draw lasts until all cards are gone (because why not)
+				while [ $i -le 52 ] && [ $suma -le 21 ]
+				do
+					if [ $inc -lt 1 ];
+					then
+						while [ ${deck[$card]} -eq 0 ]
+						do
+							color=$((RANDOM%4))
+							value=$((RANDOM%13))
+							card=$(( value + (color * 13) ))
+							if [ $value -eq 12 ];
+							then
+								pers=$((pers+1))
+							else
+								pers=0
+							fi		
+						done
+						sigma[$i]="${val[$value]} of ${col[$color]}"
+						suma=$(($suma + ${wart[$value]}))
+						b=$((b+1))
+						i=$((i+1))
+						deck[$card]=0
+						if [ $pers -eq 2 ];
+						then
+							suma=21
+						fi
+					fi
+					echo -e "Player1 credit is: $cash\nThe bet is $bet"
+					echo Player1 cards: `
+					for ((a=0; a<b; a++)) do
+						echo	${sigma[$a]},
+					done`
+					echo Value: $suma
+					echo -e "Hit		1\nStay 		2\nResign		3"
+					read inpt
+					if ([ $inpt -eq 1 ] && [ $suma -le 21 ]) 2>/dev/null;	then
+						stay=0
+						res=0
+						inc=0
+						clear
+	
+					else 
+						if ([ $inpt -eq 2 ] || [ $suma -gt 21 ]) 2>/dev/null;	then
+							clear
+							stay=1
+							res=0
+							inc=0
+							j=$i
+							i=53
+							echo Player1 cards: `
+							for ((a=0; a<b; a++)) do
+								echo	${sigma[$a]},
+							done`
+							echo Value: $suma
+
+						else 
+							if [ $inpt -eq 3 ] 2>/dev/null;	then
+								stay=0
+								res=1
+								inc=0
+								j=$i
+								i=53
+								clear
+
+							else
+								clear
+								echo "Incorrect choice"
+								stay=0
+								res=0
+								inc=1
+
+							fi
+						fi
+					fi
+
+				done
+
+				if [ $suma -gt 21 ]
+				then
+					stay=0
+				fi
+
+				#p2 draws
+				#Initial card
+				color=$((RANDOM%4))
+				value=$((RANDOM%13))
+				card=$(( value + (color * 13) ))
+				c=b
+				d=$((c+1))
+				i=$j
+				if [ $value -eq 12 ];
+				then
+					pers=$((pers+1))
+				else
+					pers=0
+				fi
+				sigma[$i]="${val[$value]} of ${col[$color]}"
+				if [ $value -eq 12 ];
+				then
+					pers=$((pers+1))
+				else
+					pers=0
+				fi
+						
+				clear
+
+				#the draw lasts until all cards are gone (because why not)
+				while [ $i -le 52 ] && [ $sumac -le 21 ]
+				do
+					if [ $inc -lt 1 ];
+					then
+						while [ ${deck[$card]} -eq 0 ]
+						do
+							color=$((RANDOM%4))
+							value=$((RANDOM%13))
+							card=$(( value + (color * 13) ))	
+							if [ $value -eq 12 ];
+							then
+								pers=$((pers+1))
+							else
+								pers=0
+							fi	
+						done
+						sigma[$i]="${val[$value]} of ${col[$color]}"
+						sumac=$(($sumac + ${wart[$value]}))
+						d=$((d+1))
+						i=$((i+1))
+						deck[$card]=0
+						if [ $pers -eq 2 ];
+						then
+							sumac=21
+						fi
+					fi
+					echo -e "Player2 credit is: $cashc\nThe bet is $bet"
+					echo Player2 cards: `
+					for ((c=b; c<$((d-1)); c++)) do
+						echo	${sigma[$c]},
+					done`
+					echo Value: $sumac
+					echo -e "Hit		1\nStay 		2\nResign		3"
+					read inpt
+					if ([ $inpt -eq 1 ] && [ $sumac -le 21 ]) 2>/dev/null;	then
+						stay=0
+						res=0
+						inc=0
+						clear
+	
+					else 
+						if ([ $inpt -eq 2 ] || [ $sumac -gt 21 ]) 2>/dev/null;	then
+							clear
+							stay=1
+							res=0
+							inc=0
+							j=$i
+							i=53
+							echo Player2 cards: `
+							for ((a=0; a<b; a++)) do
+								echo	${sigma[$a]},
+							done`
+							echo Value: $sumac
+
+						else 
+							if [ $inpt -eq 3 ] 2>/dev/null;	then
+								stay=0
+								res=1
+								inc=0
+								j=$i
+								i=53
+								clear
+
+							else
+								clear
+								echo "Incorrect choice"
+								stay=0
+								res=0
+								inc=1
+
+							fi
+						fi
+					fi
+
+				done
+
+				if [ $sumac -gt 21 ]
+				then
+					stay=0
+				fi
+
+				#evaluation
+
+				clear	
+
+				echo Player1 cards: `
+				for ((a=0; a<b; a++)) do
+					echo	${sigma[$a]},
+				done`
+				echo Value: $suma
+
+				echo Player2 cards: `
+				for ((c=b; c<$((d-1)); c++)) do
+				echo	${sigma[$c]},
+				done`
+				echo Value: $sumac
+
+				if ([ $suma -eq $sumac ] && [ $suma -le 21 ] && [ $sumac -le 21 ]);
+				then
+					echo "Tie."
+				else
+					if ([ $sumac -gt 21 ] && [ $suma -gt 21 ]);
+					then
+						echo "You both lose"				
+					else
+						if ([ $sumac -gt 21 ] && [ $suma -le 21 ]) || ([ $suma -gt $sumac ] && [ $suma -le 21 ])
+							then
+							echo "Player1 wins!"
+							cash=$((cash + bet))
+							cashc=$((cashc - bet))
+							echo -e "Player1 cash: $cash\nPlayer2 cash: $cashc"
+						else
+							if ([ $sumac -le 21 ] && [ $suma -gt 21 ]) || ([ $suma -le $sumac ] && [ $suma -gt 21 ])
+							then	
+								echo "Player2 wins!"
+								cash=$((cash - bet))
+								cashc=$((cashc + bet))
+								echo -e "Player1 cash: $cash\nPlayer2 cash: $cashc"
+							fi
+						fi
+					fi
+				fi
+				read empty
+				clear
+			done
+
+			if [ $cash -le 0 ];
+			then
+				echo "Player2 won!"
+			else
+				echo "Player1 won!"
+			fi	
+		
+############playagain?
+			inc=1
+			while [ $inc -gt 0 ]
+			do
+				echo -e "Want to play again?\nYes		1\nNo		2"
+				read again
+				if [ $again -eq 1 ] 2>/dev/null;
+				then
+					hum=1
+					inc=0
+					clear
+				else
+					if [ $again -eq 2 ] 2>/dev/null;
+					then
+						hum=0
+						inc=0
+						clear
+					else
+						clear			
+						echo "Incorrect choice"
+						inc=1
+						read empty
+						clear
+					fi
+				fi
+			done
+		
+######################################## END	
+		done
+
+		else
+			if [ $menu -eq 1 ] 2>/dev/null; then
+			#scene3:vsCPU
+				clear
+				cpu=1				
+				echo -e "$name $ver$typ\nPlay VS CPU"
+				read empty
+				while [ $cpu -eq 1 ]
+				do
+######################################## WHILE				
+					#Init
+					cash=300
+					cashc=300
+
+					clear
+					while ([ $cash -gt 0 ] && [ $cashc -gt 0 ])
+					do
+						b=0
+						inc=0
+						suma=0
+						sumac=0
+						SUMA=0
+						SUMAc=0
+						bet=0
+						stay=0
+						res=0
+						val=( 2 3 4 5 6 7 8 9 10 Jack Queen King Ace )
+						col=( Spades Clubs Diamonds Hearts )
+						wart=( 2 3 4 5 6 7 8 9 10 2 3 4 11 )
+	
+						for ((i=0; i<52; i++)) do
+							sigma[$i]=NULL
+							sigmac[$i]=NULL
+							deck[$i]=1
+						done
+	
+						#betting
+						wrbet=1
+						while [ $wrbet -ge 1 ]
+						do
+							echo -e "Your credit is: $cash\nPlace your bet: "
+							read bet
+	
+							if ([ $bet -gt 0 ] && [ $bet -le $cash ]);
+							then
+								if [ $bet -gt $cashc ];
+								then
+									echo "You can't bet more than your opponent has ($cashc)"
+									read empty
+									wrbet=1
+									clear
+								else
+									wrbet=0
+								fi
+							else
+								if [ $bet -eq 0 ] 2>/dev/null;
+								then
+									echo "You can't bet nothing"
+									wrbet=1
+									read empty
+								clear
+								else
+									if [ $bet -gt $cash ] 2>/dev/null;
+									then
+										echo "You can't bet more than you have"
+										wrbet=1
+										read empty
+										clear
+									else
+										if [ $bet -lt 0 ] 2>/dev/null;
+										then
+											echo "Your bet cannot be less than 0"
+											wrbet=1
+											read empty
+											clear
+										else
+											clear
+											echo -e "Incorrect input\nTry again"
+											wrbet=1
+											read empty
+											clear
+				
+										fi
+									fi
+								fi
+							fi
+	
+						done
+
+						clear
+						echo Your bet is: $bet
+						read empty
+
+						#Initial card
+						color=$((RANDOM%4))
+						value=$((RANDOM%13))
+						card=$(( value + (color * 13) ))
+						i=0
+						sigma[$i]="${val[$value]} of ${col[$color]}"
+						if [ $value -eq 12 ];
+						then
+							pers=$((pers+1))
+						else
+							pers=0
+						fi
+
+						clear
+
+						#the draw lasts until all cards are gone (because why not)
+						while [ $i -le 52 ] && [ $suma -le 21 ]
+						do
+							if [ $inc -lt 1 ];
+							then
+								while [ ${deck[$card]} -eq 0 ]
+								do
+									color=$((RANDOM%4))
+									value=$((RANDOM%13))
+									card=$(( value + (color * 13) ))
+									if [ $value -eq 12 ];
+									then
+										pers=$((pers+1))
+									else
+										pers=0
+									fi
+								done
+								sigma[$i]="${val[$value]} of ${col[$color]}"
+								suma=$(($suma + ${wart[$value]}))
+								b=$((b+1))
+								i=$((i+1))
+								deck[$card]=0
+								if [ $pers -eq 2 ];
+								then
+									suma=21
+								fi
+							fi
+							echo Your bet is: $bet
+							echo Your cards: `
+							for ((a=0; a<b; a++)) do
+								echo	${sigma[$a]},
+							done`
+							echo Value: $suma
+							echo -e "Hit		1\nStay 		2\nResign		3"
+							read inpt
+							if [ $inpt -eq 1 ] 2>/dev/null;	then
+								stay=0
+								res=0
+								inc=0
+								clear
+	
+							else 
+								if [ $inpt -eq 2 ] 2>/dev/null;	then
+									clear
+									stay=1
+									res=0
+									inc=0
+									j=$i
+									i=53
+									echo Your cards: `
+									for ((a=0; a<b; a++)) do
+										echo	${sigma[$a]},
+									done`
+									echo Value: $suma
+
+								else 
+									if [ $inpt -eq 3 ] 2>/dev/null;	then
+										stay=0
+										res=1
+										inc=0
+										j=$i
+										i=53
+										clear
+
+									else
+										clear
+										echo "Incorrect choice"
+										stay=0
+										res=0
+										inc=1
+
+									fi
+								fi
+							fi
+
+						done
+
+						if [ $suma -gt 21 ]
+						then
+							stay=0
+						fi
+
+						#cpu draws
+						#Initial card
+						color=$((RANDOM%4))
+						value=$((RANDOM%13))
+						card=$(( value + (color * 13) ))
+						c=b
+						d=$((c+1))
+						i=$j
+						sigma[$i]="${val[$value]} of ${col[$color]}"
+						if [ $value -eq 12 ];
+						then
+							pers=$((pers+1))
+						else
+							pers=0
+						fi
+
+						clear
+
+						#the draw lasts until all cards are gone (because why not)
+						while [ $i -le 52 ] && [ $sumac -le 18 ]
+						do
+							while [ ${deck[$card]} -eq 0 ]
+							do
+								color=$((RANDOM%4))
+								value=$((RANDOM%13))
+								card=$(( value + (color * 13) ))
+								if [ $value -eq 12 ];
+								then
+									pers=$((pers+1))
+								else
+									pers=0
+								fi	
+							done
+							sigma[$i]="${val[$value]} of ${col[$color]}"
+							sumac=$(($sumac + ${wart[$value]}))
+							d=$((d+1))
+							i=$((i+1))
+							deck[$card]=0
+							if [ $pers -eq 2 ];
+							then
+								sumac=21
+							fi
+						done
+
+						#evaluation
+
+						if [ $res -eq 1 ];
+						then
+							clear	
+							echo "You gave up."
+							echo Your cards: `
+							for ((a=0; a<b; a++)) do
+								echo	${sigma[$a]},
+							done`
+							cash=$((cash - 2 * bet))
+							cashc=$((cashc + 2 * bet))
+							echo -e "Value: $suma\nYour cash: $cash"
+						else
+							clear	
+							echo Your cards: `
+							for ((a=0; a<b; a++)) do
+								echo	${sigma[$a]},
+							done`
+							echo Value: $suma
+
+							echo CPU cards: `
+							for ((c=b; c<$((d-1)); c++)) do
+								echo	${sigma[$c]},
+							done`
+							echo Value: $sumac
+
+							if ([ $suma -eq $sumac ] && [ $suma -le 21 ] && [ $sumac -le 21 ]);
+							then
+								echo "Tie."
+							else
+								if ([ $sumac -gt 21 ] && [ $suma -gt 21 ]);
+								then
+									echo "You both lose"				
+								else
+									if ([ $sumac -gt 21 ] && [ $suma -le 21 ]) || ([ $suma -gt $sumac ] && [ $suma -le 21 ])
+										then
+										cash=$((cash + bet))
+										cashc=$((cashc - bet))
+										echo -e "You win!\nYour cash: $cash"
+									else
+										cash=$((cash - bet))
+										cashc=$((cashc + bet))
+										echo -e "You lose\nYour cash: $cash"
+									fi
+								fi
+							fi
+						fi
+						read empty
+						clear
+					done
+
+					if [ $cash -le 0 ];
+					then
+						echo "You lost"
+					else
+						echo "You won!"
+					fi
+
+####################playagain?
+
+					inc=1
+					while [ $inc -gt 0 ]
+					do
+						echo -e "Want to play again?\nYes		1\nNo		2"
+						read again
+						if [ $again -eq 1 ] 2>/dev/null;
+						then
+							cpu=1
+							inc=0
+							clear
+						else
+							if [ $again -eq 2 ] 2>/dev/null;
+							then
+								cpu=0
+								inc=0
+								clear
+							else
+								clear			
+								echo "Incorrect choice"
+								inc=1
+								read empty
+								clear
+							fi
+						fi
+					done
+				
+######################################## END				
+				done
+			else
+				clear
+				echo -e "Incorrect choice\nTry again"
+				read empty
+			fi
+		fi
+	fi
+done
